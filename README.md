@@ -1,5 +1,7 @@
 # 合智神AI网关 - 智能 AI 网关
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 一个功能强大的 AI 模型网关，支持多协议转换、智能负载均衡、文件感知路由和 MCP 知识库管理。
 
 ## 功能特性
@@ -680,7 +682,7 @@ A: 目前只支持 `/chat/completions` 和 `/messages` 的互相转换，其他�
 
 ## 许可证
 
-MIT License
+[Apache License 2.0](LICENSE)
 
 ## 贡献
 
