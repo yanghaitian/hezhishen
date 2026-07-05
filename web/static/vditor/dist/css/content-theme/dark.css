@@ -1,0 +1,226 @@
+/*!
+ * Vditor - A markdown editor written in TypeScript.
+ *
+ * MIT License
+ *
+ * Copyright (c) 2018-present B3log 开源, b3log.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+.vditor-reset {
+    color: rgba(252, 252, 252, 0.9);
+    text-autospace: normal;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    strong,
+    bold,
+    .language-math {
+        color: #ffffff;
+    }
+}
+
+.vditor-reset a,
+.vditor-ir__link {
+    color: rgba(252, 252, 252, 0.9);
+}
+
+.vditor-reset ol,
+.vditor-reset ul {
+    li::marker {
+        color: #a3a3a3;
+    }
+}
+
+.vditor-reset hr {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.vditor-reset blockquote {
+    color: #fafafa;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.vditor-reset iframe {
+    border: 1px solid #141414;
+}
+
+.vditor-reset .language-math {
+    user-select: all;
+    cursor: text;
+    transition: background-color 0.1s ease;
+}
+.vditor-reset .language-math.vditor-math--selected {
+    background-color: highlight !important;
+    color: highlighttext !important;
+}
+
+.vditor-reset table tr {
+    /* background-color: #2f363d; */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+    th {
+        color: #ffffff;
+    }
+
+    td {
+        color: #fafafa;
+    }
+}
+
+/* .vditor-reset table td,
+.vditor-reset table th {
+    border: 1px solid #dfe2e5;
+}
+
+.vditor-reset table tbody tr:nth-child(2n) {
+    background-color: @primaryColor;
+} */
+
+.vditor-reset code:not(.hljs):not(.highlight-chroma) {
+    background-color: #262626;
+}
+
+.vditor-reset .language-abc svg,
+.vditor-reset .language-abc path {
+    fill: currentColor;
+    color: #d1d5da;
+}
+
+.language-graphviz polygon {
+    fill: rgba(66, 133, 244, 0.36);
+}
+
+.vditor-reset kbd {
+    color: #d1d5da;
+    background-color: #2f363d;
+    border: 1px solid #141414;
+    box-shadow: inset 0 -1px 0 #141414;
+}
+
+.vditor-copy svg {
+    color: #b9b9b9;
+}
+
+.vditor-speech {
+    background-color: #1d2125;
+    border: 1px solid #141414;
+    color: #b9b9b9;
+}
+
+.vditor-speech--current,
+.vditor-speech:hover {
+    color: #fff;
+}
+
+.vditor-linkcard a {
+    background-color: #1d2125;
+}
+
+.vditor-linkcard a:visited .vditor-linkcard__abstract {
+    color: hsla(0, 0%, 72.5%, 0.36);
+}
+
+.vditor-linkcard__title {
+    color: #d1d5da;
+}
+
+.vditor-linkcard__abstract {
+    color: #b9b9b9;
+}
+
+.vditor-linkcard__site {
+    color: #fff;
+}
+
+.vditor-linkcard__image {
+    background-color: hsla(0, 0%, 72.5%, 0.36);
+}
+
+.vditor-task input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #0a0a0a;
+    /* 未选中时黑色边框 */
+    background-color: transparent;
+    /* 未选中不填充背景 */
+    position: relative;
+    vertical-align: middle;
+    margin-right: 0.38rem;
+    outline: none;
+}
+
+.vditor-task input[type="checkbox"]:checked {
+    background-color: #fafafa;
+    /* 选中时白底 */
+}
+
+.vditor-task input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    width: 0.25rem;
+    height: 0.56rem;
+    border: 2px solid #0a0a0a;
+    border-top: none;
+    border-left: none;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -60%) rotate(45deg);
+}
+
+.vditor-selection-popover__input .vditor-selection-popover__send {
+    color: #0a0a0a;
+}
+
+.vditor--linenumber {
+    [data-linenumber] {
+        &:after {
+            color: rgba(252, 252, 252, 0.65) !important;
+        }
+    }
+    .vditor-line-highlight {
+        color: #0a0a0a !important;
+    }
+}
+
+.vditor-reset .mermaid-error {
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.vditor-reset .mermaid-error .mermaid-error-icon {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.vditor-reset .mermaid-error .mermaid-error-title {
+    color: rgba(252, 252, 252, 0.9);
+}
+.vditor-reset .mermaid-error .mermaid-error-message {
+    color: #a3a3a3;
+}
+.vditor-reset .mermaid-error .mermaid-error-icon {
+    color: rgba(252, 252, 252, 0.9);
+}

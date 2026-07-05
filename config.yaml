@@ -1,0 +1,66 @@
+# htAiGateway 多模型配置
+#
+# 启动方式:
+#   CONFIG_PATH=./config.yaml go run cmd/main.go
+#
+# 客户端调用时通过 X-Model Header 选择模型:
+#   curl -H "Authorization: Bearer sk-gateway-secret" \
+#        -H "X-Model: deepseek" \
+#        -H "Content-Type: application/json" \
+#        -d '{"model":"deepseek-chat","messages":[{"role":"user","content":"hello"}]}' \
+#        http://localhost:8080/openai/v1/chat/completions
+
+gateway:
+  listen_addr: ":8080"
+  api_key: "Yht520DaBao"       # 网关统一鉴权 Key，客户端调用时传入
+  timeout_seconds: 120
+  sqlite_max_conns: 1  # SQLite 连接池大小，默认 1（SQLite 推荐单连接，高并发可适当增大）
+loadbalancer:
+  model_name: "ht-model"
+  model:
+    name: deepseek-v4-pro         # LLM 分词模型，用于语义分词
+    protocol: openai
+    backend_url: https://api.deepseek.com
+    api_key: sk-xxx
+  strategy: embedding               # 策略：embedding / round_robin / least_conn
+  top_k: 3                          # 返回相似度最高的前 K 个候选
+  min_similarity: 0.5               # 最小相似度阈值，低于此值不选
+  use_llm_parse: false              # 是否启用LLM语义解析分词（默认false，简单分词goformer够用）
+
+models:
+
+
+
+  # 文件处理辅助模型示例（取消注释启用）：
+  # - name: gpt-4o
+  #   to_model: gpt-4o
+  #   protocol: openai
+  #   backend_url: https://api.openai.com/v1
+  #   api_key: your-openai-key
+  #   description: "多模态模型，支持图片、视频等文件处理"
+  #   supports_files: true             # 支持文件上传
+  #   auxiliary_type: ["image", "video"]  # 支持的文件类型
+  #   auxiliary_role: "analysis"       # 分析类任务（默认）
+
+  # - name: dall-e-3
+  #   to_model: dall-e-3
+  #   protocol: openai
+  #   backend_url: https://api.openai.com/v1
+  #   api_key: your-openai-key
+  #   description: "图片生成模型"
+  #   supports_files: true
+  #   auxiliary_type: ["image"]
+  #   auxiliary_role: "generation"     # 生成类任务
+
+
+#  - name: kimi
+#    to_model: moonshot-v1-8k    # 实际转发名
+#    protocol: openai
+#    backend_url: https://api.moonshot.cn/v1
+#    api_key: sk-your-kimi-key
+#
+#  - name: qianwen
+#    to_model: qwen-max          # 实际转发名
+#    protocol: anthropic
+#    backend_url: https://dashscope.aliyuncs.com/api/v1
+#    api_key: sk-your-qianwen-key
