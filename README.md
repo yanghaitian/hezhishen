@@ -1,115 +1,121 @@
-# 合智神AI网关 - 智能 AI 网关
+<div align="center">
+
+**Language:** [English](README.md) | [简体中文](README.zh-CN.md)
+
+</div>
+
+# HeZhiShen AI Gateway - Intelligent AI Gateway
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-一个功能强大的 AI 模型网关，支持多协议转换、智能负载均衡、文件感知路由和 MCP 知识库管理。
+A powerful AI model gateway that supports multi-protocol translation, intelligent load balancing, file-aware routing, and MCP knowledge base management.
 
-## 功能特性
+## Features
 
-### 核心功能
+### Core Features
 
-- **多协议支持**：同时支持 OpenAI 和 Anthropic 协议，可互相转换
-- **智能负载均衡**：三种策略可选（语义向量匹配、轮询、最少连接）
-- **文件感知路由**：自动检测图片/视频/音频，智能切换到支持多模态的模型
-- **辅助模型系统**：支持分析类和生成类辅助模型，按任务类型智能匹配
-- **MCP 知识库**：基于 SQLite + sqlite-vec 的文档检索系统，支持向量相似度搜索
-- **跨协议翻译**：OpenAI ↔ Anthropic 请求/响应格式自动转换
-- **API Key 统一鉴权**：网关层统一管理认证，后端模型独立配置
+- **Multi-protocol support**: Supports both OpenAI and Anthropic protocols simultaneously, with bidirectional conversion
+- **Intelligent load balancing**: Three selectable strategies (semantic vector matching, round-robin, least connections)
+- **File-aware routing**: Automatically detects images/videos/audio and intelligently switches to multimodal-capable models
+- **Auxiliary model system**: Supports analysis and generation auxiliary models, intelligently matched by task type
+- **MCP knowledge base**: Document retrieval system based on SQLite + sqlite-vec, supporting vector similarity search
+- **Cross-protocol translation**: Automatic OpenAI ↔ Anthropic request/response format conversion
+- **Unified API key authentication**: Centralized authentication at the gateway layer, with backend models configured independently
 
-### 高级特性
+### Advanced Features
 
-- **语义向量匹配**：使用 BGE-small-zh-v1.5 嵌入模型进行语义理解
-- **混合搜索**：LIKE 文本搜索 + KNN 向量搜索结合
-- **知识库管理**：支持文档 CRUD、批量导入导出（CSV 格式）
-- **连接追踪**：least_conn 策略支持实时连接数统计
-- **路径自适应**：支持开发环境和生产环境的路径解析
+- **Semantic vector matching**: Uses the BGE-small-zh-v1.5 embedding model for semantic understanding
+- **Hybrid search**: Combines LIKE text search with KNN vector search
+- **Knowledge base management**: Supports document CRUD, bulk import/export (CSV format)
+- **Connection tracking**: The `least_conn` strategy supports real-time connection counting
+- **Path adaptation**: Supports path resolution for both development and production environments
 
-## 快速开始
+## Quick Start
 
-### 1. 环境要求
+### 1. Requirements
 
 - Go 1.25+
-- SQLite3（现代操作系统已内置）
+- SQLite3 (built into modern operating systems)
 
-### 2. 安装
-下载免安装版
+### 2. Installation
+Download the portable (no-install) version
 ```bash
 https://github.com/yanghaitian/hezhishen
 ```
 
-### 3. 配置
+### 3. Configuration
 
-编辑 `config.yaml`：
+Edit `config.yaml`:
 
 ```yaml
-# 网关配置
+# Gateway configuration
 gateway:
-  listen_addr: ":8080"           # 监听地址
-  api_key: "your-api-key"        # 网关 API Key
-  timeout_seconds: 120           # 请求超时时间
+  listen_addr: ":8080"           # Listen address
+  api_key: "your-api-key"        # Gateway API key
+  timeout_seconds: 120           # Request timeout
 
-# 负载均衡配置
+# Load balancing configuration
 loadbalancer:
-  model_name: "ht-model"         # 负载均衡触发模型名
+  model_name: "ht-model"         # Model name that triggers load balancing
   model:
-    name: deepseek-v4-pro        # 用于语义分词的 LLM
+    name: deepseek-v4-pro        # LLM used for semantic tokenization
     protocol: openai
     backend_url: https://api.deepseek.com
     api_key: sk-xxx
-  strategy: embedding            # 策略：embedding / round_robin / least_conn
-  top_k: 3                       # 返回 Top-K 个候选模型
-  min_similarity: 0.5            # 最小相似度阈值
-  use_llm_parse: false           # 是否启用 LLM 语义解析（默认关闭）
+  strategy: embedding            # Strategy: embedding / round_robin / least_conn
+  top_k: 3                       # Return Top-K candidate models
+  min_similarity: 0.5            # Minimum similarity threshold
+  use_llm_parse: false           # Whether to enable LLM semantic parsing (off by default)
 
-# 模型配置
+# Model configuration
 models:
-  # 主模型
+  # Primary model
   - name: deepseek-openai
     to_model: deepseek-v4-pro
     protocol: openai
     backend_url: https://api.deepseek.com
     api_key: sk-xxx
-    description: "擅长代码生成、逻辑推理"
+    description: "Specializes in code generation and logical reasoning"
     default: true
     supports_files: false
 
-  # 辅助模型 - 图片/视频分析
+  # Auxiliary model - image/video analysis
   - name: gpt-4o
     to_model: gpt-4o
     protocol: openai
     backend_url: https://api.openai.com/v1
     api_key: sk-xxx
-    description: "多模态分析模型"
+    description: "Multimodal analysis model"
     supports_files: true
     auxiliary_type: ["image", "video"]
     auxiliary_role: "analysis"
 
-  # 辅助模型 - 图片生成
+  # Auxiliary model - image generation
   - name: dall-e-3
     to_model: dall-e-3
     protocol: openai
     backend_url: https://api.openai.com/v1
     api_key: sk-xxx
-    description: "图片生成模型"
+    description: "Image generation model"
     supports_files: true
     auxiliary_type: ["image"]
     auxiliary_role: "generation"
 ```
 
-### 4. 启动
+### 4. Run
 
 ```bash
-# 开发环境
+# Development
 go run cmd/main.go
 
-# 生产环境
+# Production
 go build -o hezhishen cmd/main.go
 ./hezhishen
 ```
 
-### 5. 使用
+### 5. Usage
 
-#### 直连模型
+#### Direct model access
 
 ```bash
 curl http://localhost:8080/openai/v1/chat/completions \
@@ -118,28 +124,28 @@ curl http://localhost:8080/openai/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "deepseek-v4-pro",
-    "messages": [{"role": "user", "content": "你好"}]
+    "messages": [{"role": "user", "content": "Hello"}]
   }'
 ```
 
-#### 负载均衡
+#### Load balancing
 
 ```bash
-# 使用 ht-model 触发智能路由
+# Use ht-model to trigger intelligent routing
 curl http://localhost:8080/openai/v1/chat/completions \
   -H "Authorization: Bearer your-api-key" \
   -H "X-Model: ht-model" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "ht-model",
-    "messages": [{"role": "user", "content": "帮我写一个排序算法"}]
+    "messages": [{"role": "user", "content": "Write a sorting algorithm for me"}]
   }'
 ```
 
-#### 文件感知路由
+#### File-aware routing
 
 ```bash
-# 包含图片的请求会自动路由到支持多模态的模型
+# Requests containing images are automatically routed to multimodal-capable models
 curl http://localhost:8080/openai/v1/chat/completions \
   -H "Authorization: Bearer your-api-key" \
   -H "X-Model: deepseek-openai" \
@@ -149,32 +155,32 @@ curl http://localhost:8080/openai/v1/chat/completions \
     "messages": [{
       "role": "user",
       "content": [
-        {"type": "text", "text": "分析这张图片"},
+        {"type": "text", "text": "Analyze this image"},
         {"type": "image_url", "image_url": {"url": "data:image/png;base64,..."}}
       ]
     }]
   }'
 ```
 
-### 智能文件路由
+### Intelligent File Routing
 
-系统支持多阶段智能路由，自动识别文件类型和任务意图：
+The system supports multi-stage intelligent routing that automatically identifies file types and task intent:
 
-**路由流程：**
+**Routing flow:**
 ```
-1. 检测文件上传（image/video/audio/document/file）
-2. 提取文本内容
-3. 判断任务类型：
-   - 生成任务（包含"生成"、"创建"、"画"等关键词）
-   - 分析任务（包含"分析"、"描述"、"解释"等关键词）
-4. 路由到对应模型：
-   - 生成任务 → auxiliary_role: "generation" 且匹配文件类型的模型
-   - 分析任务 → auxiliary_role: "analysis" 且匹配文件类型的模型
+1. Detect file uploads (image/video/audio/document/file)
+2. Extract text content
+3. Determine task type:
+   - Generation tasks (keywords such as "generate", "create", "draw")
+   - Analysis tasks (keywords such as "analyze", "describe", "explain")
+4. Route to the corresponding model:
+   - Generation task → model with auxiliary_role: "generation" matching the file type
+   - Analysis task → model with auxiliary_role: "analysis" matching the file type
 ```
 
-**场景示例：**
+**Example scenarios:**
 
-**场景1：图片分析**
+**Scenario 1: Image analysis**
 ```bash
 curl http://localhost:8080/openai/v1/chat/completions \
   -H "Authorization: Bearer your-api-key" \
@@ -185,16 +191,16 @@ curl http://localhost:8080/openai/v1/chat/completions \
     "messages": [{
       "role": "user",
       "content": [
-        {"type": "text", "text": "分析这张图片的内容"},
+        {"type": "text", "text": "Analyze the content of this image"},
         {"type": "image_url", "image_url": {"url": "data:image/png;base64,..."}}
       ]
     }]
   }'
-# 系统检测到 image 类型 + "分析"关键词
-# → 路由到 auxiliary_role: "analysis", auxiliary_type: ["image"] 的模型
+# The system detects the "image" type + the "analyze" keyword
+# → routes to a model with auxiliary_role: "analysis", auxiliary_type: ["image"]
 ```
 
-**场景2：图片生成**
+**Scenario 2: Image generation**
 ```bash
 curl http://localhost:8080/openai/v1/chat/completions \
   -H "Authorization: Bearer your-api-key" \
@@ -204,14 +210,14 @@ curl http://localhost:8080/openai/v1/chat/completions \
     "model": "deepseek-v4-pro",
     "messages": [{
       "role": "user",
-      "content": "帮我生成一张可爱的猫咪图片"
+      "content": "Generate a cute cat image for me"
     }]
   }'
-# 系统检测到"生成"+"图片"关键词
-# → 路由到 auxiliary_role: "generation", auxiliary_type: ["image"] 的模型（如 DALL-E 3）
+# The system detects the "generate" + "image" keywords
+# → routes to a model with auxiliary_role: "generation", auxiliary_type: ["image"] (e.g. DALL-E 3)
 ```
 
-**场景3：视频分析**
+**Scenario 3: Video analysis**
 ```bash
 curl http://localhost:8080/openai/v1/chat/completions \
   -H "Authorization: Bearer your-api-key" \
@@ -222,19 +228,19 @@ curl http://localhost:8080/openai/v1/chat/completions \
     "messages": [{
       "role": "user",
       "content": [
-        {"type": "text", "text": "描述这个视频的内容"},
+        {"type": "text", "text": "Describe the content of this video"},
         {"type": "video", "video": {"url": "data:video/mp4;base64,..."}}
       ]
     }]
   }'
-# 系统检测到 video 类型 + "描述"关键词
-# → 路由到 auxiliary_role: "analysis", auxiliary_type: ["video"] 的模型
+# The system detects the "video" type + the "describe" keyword
+# → routes to a model with auxiliary_role: "analysis", auxiliary_type: ["video"]
 ```
 
-**配置示例：**
+**Configuration example:**
 ```yaml
 models:
-  # 主模型（不支持文件）
+  # Primary model (does not support files)
   - name: deepseek-openai
     to_model: deepseek-v4-pro
     protocol: openai
@@ -242,7 +248,7 @@ models:
     api_key: sk-xxx
     supports_files: false
 
-  # 图片/视频分析模型
+  # Image/video analysis model
   - name: gpt-4o-vision
     to_model: gpt-4o
     protocol: openai
@@ -252,7 +258,7 @@ models:
     auxiliary_type: ["image", "video"]
     auxiliary_role: "analysis"
 
-  # 图片生成模型
+  # Image generation model
   - name: dall-e-3
     to_model: dall-e-3
     protocol: openai
@@ -263,85 +269,85 @@ models:
     auxiliary_role: "generation"
 ```
 
-**生成类型识别关键词：**
+**Generation type detection keywords:**
 
-| 生成类型 | 中文关键词 | 英文关键词 |
+| Generation type | Chinese keywords | English keywords |
 |---------|-----------|-----------|
 | `image` | 图片、图像、画、图、照片 | image、picture、photo、draw |
 | `video` | 视频、动画、影片 | video、animation、movie、clip |
 | `audio` | 音频、音乐、声音、语音 | audio、music、sound、voice |
 
-### 生成模型支持状态（TODO）
+### Generation model support status (TODO)
 
-**当前状态：**
-- ✅ 意图检测已实现（可识别生成任务）
-- ✅ 模型路由已实现（可找到对应的生成模型）
-- ❌ 请求格式转换未实现（TODO）
+**Current status:**
+- ✅ Intent detection implemented (generation tasks can be recognized)
+- ✅ Model routing implemented (the corresponding generation model can be found)
+- ❌ Request format conversion not implemented (TODO)
 
-**为什么请求格式转换未实现？**
+**Why is request format conversion not implemented?**
 
-生成模型的 API **不统一**，与聊天/补全模型不同：
+Generation model APIs are **not unified**, unlike chat/completion models:
 
-| 对比项 | 聊天模型 | 生成模型 |
+| Comparison | Chat models | Generation models |
 |-------|---------|---------|
-| API 结构 | 相对统一（messages 数组） | 完全不统一 |
-| 请求字段 | 标准化 | 各不相同（prompt/text/description） |
-| 响应格式 | 统一（choices/message） | URL / base64 / task_id |
-| 处理方式 | 同步返回 | 同步或异步（需轮询） |
+| API structure | Relatively unified (messages array) | Completely non-uniform |
+| Request fields | Standardized | Vary widely (prompt/text/description) |
+| Response format | Unified (choices/message) | URL / base64 / task_id |
+| Processing | Synchronous return | Synchronous or asynchronous (requires polling) |
 
-**常见生成模型 API 差异：**
+**Common generation model API differences:**
 
-| 模型 | 请求格式 | 响应格式 | 处理方式 |
+| Model | Request format | Response format | Processing |
 |-----|---------|---------|---------|
-| DALL-E 3 | `{"prompt": "..."}` | `{"url": "..."}` | 同步 |
-| Stable Diffusion | `{"prompt": "...", "steps": 50}` | `{"images": ["base64..."]}` | 同步 |
-| Midjourney | `{"prompt": "..."}` | `{"task_id": "..."}` | 异步 |
-| Sora | `{"prompt": "...", "duration": 10}` | `{"video_url": "..."}` | 异步 |
-| Runway | `{"text": "...", "image": "..."}` | `{"task_id": "..."}` | 异步 |
+| DALL-E 3 | `{"prompt": "..."}` | `{"url": "..."}` | Synchronous |
+| Stable Diffusion | `{"prompt": "...", "steps": 50}` | `{"images": ["base64..."]}` | Synchronous |
+| Midjourney | `{"prompt": "..."}` | `{"task_id": "..."}` | Asynchronous |
+| Sora | `{"prompt": "...", "duration": 10}` | `{"video_url": "..."}` | Asynchronous |
+| Runway | `{"text": "...", "image": "..."}` | `{"task_id": "..."}` | Asynchronous |
 
-**实现生成模型支持需要：**
+**Implementing generation model support requires:**
 
-1. **定义统一的内部接口**
+1. **Define a unified internal interface**
    ```go
    type GenerationRequest struct {
        Type    string                 // "image", "video", "audio"
        Prompt  string
        Params  map[string]interface{}
    }
-   
+
    type GenerationResponse struct {
        Type     string                 // "url", "base64", "async"
-       Data     string                 // URL、base64 或 task_id
+       Data     string                 // URL, base64, or task_id
        Metadata map[string]interface{}
    }
    ```
 
-2. **为每个提供商实现适配器**
+2. **Implement adapters for each provider**
    ```go
    type GenerationAdapter interface {
        Generate(req *GenerationRequest) (*GenerationResponse, error)
        GetTaskStatus(taskID string) (*GenerationResponse, error)
    }
-   
-   // 示例：DALL-E 适配器
+
+   // Example: DALL-E adapter
    type DALLEAdapter struct {
        APIKey     string
        BackendURL string
    }
-   
+
    func (a *DALLEAdapter) Generate(req *GenerationRequest) (*GenerationResponse, error) {
-       // 1. 转换请求格式
+       // 1. Convert the request format
        dalleReq := map[string]interface{}{
            "model": "dall-e-3",
            "prompt": req.Prompt,
            "n": 1,
            "size": "1024x1024",
        }
-       
-       // 2. 调用 DALL-E API
+
+       // 2. Call the DALL-E API
        resp, err := http.Post(a.BackendURL+"/images/generations", ...)
-       
-       // 3. 转换响应格式
+
+       // 3. Convert the response format
        return &GenerationResponse{
            Type: "url",
            Data: resp.Data[0].URL,
@@ -349,132 +355,132 @@ models:
    }
    ```
 
-3. **处理异步任务**
-   - 任务队列管理
-   - 状态轮询机制
-   - 回调通知
+3. **Handle asynchronous tasks**
+   - Task queue management
+   - Status polling mechanism
+   - Callback notifications
 
-4. **在 handler 中集成**
+4. **Integrate in the handler**
    ```go
-   // 在 OpenAI handler 的文件感知路由中
+   // In the OpenAI handler's file-aware routing
    if role == "generation" {
        genType := common.DetectGenerationType(bodyBytes)
        if genModel := cfg.FindGenerationModel(genType, "openai"); genModel != nil {
-           // 获取对应的适配器
+           // Get the corresponding adapter
            adapter := getGenerationAdapter(genModel)
-           
-           // 提取 prompt
+
+           // Extract the prompt
            prompt := extractPrompt(bodyBytes)
-           
-           // 调用生成 API
+
+           // Call the generation API
            result, err := adapter.Generate(&GenerationRequest{
                Type:   genType,
                Prompt: prompt,
            })
-           
-           // 返回结果
+
+           // Return the result
            c.JSON(200, result)
            return
        }
    }
    ```
 
-**建议的实施策略：**
+**Recommended implementation strategy:**
 
-1. **按需实现**：先支持最常用的生成模型（如 DALL-E 3）
-2. **逐步扩展**：根据实际需求添加其他模型
-3. **避免过度设计**：不要预先实现所有可能的适配器
-4. **保持灵活性**：适配器模式便于扩展
+1. **Implement on demand**: Start with the most commonly used generation models (e.g. DALL-E 3)
+2. **Expand incrementally**: Add other models based on actual needs
+3. **Avoid over-engineering**: Do not pre-implement all possible adapters
+4. **Keep it flexible**: The adapter pattern makes extension easy
 
-**当前替代方案：**
+**Current workaround:**
 
-如果需要文生图功能，可以：
-1. 直接在客户端调用生成模型 API（绕过网关）
-2. 或者等待网关实现对应模型的适配器
+If you need text-to-image functionality, you can:
+1. Call the generation model API directly from the client (bypassing the gateway)
+2. Or wait for the gateway to implement the corresponding model adapter
 
-## 详细配置说明
+## Detailed Configuration
 
-### Gateway 配置
+### Gateway configuration
 
-| 字段 | 类型 | 必填 | 默认值 | 说明 |
+| Field | Type | Required | Default | Description |
 |------|------|------|--------|------|
-| `listen_addr` | string | 否 | `:8080` | 网关监听地址 |
-| `api_key` | string | 是 | - | 网关统一鉴权 Key |
-| `timeout_seconds` | int | 否 | `120` | 请求超时时间（秒） |
-| `sqlite_max_conns` | int | 否 | `1` | SQLite 连接池大小。SQLite 推荐单连接模式，高并发场景可适当增大（如 5-10） |
+| `listen_addr` | string | No | `:8080` | Gateway listen address |
+| `api_key` | string | Yes | - | Gateway unified authentication key |
+| `timeout_seconds` | int | No | `120` | Request timeout (seconds) |
+| `sqlite_max_conns` | int | No | `1` | SQLite connection pool size. SQLite recommends single-connection mode; it can be increased for high-concurrency scenarios (e.g. 5-10) |
 
-### Model 配置
+### Model configuration
 
-| 字段 | 类型 | 必填 | 默认值 | 说明 |
+| Field | Type | Required | Default | Description |
 |------|------|------|--------|------|
-| `name` | string | 是 | - | 模型对外名称，用于 X-Model 匹配 |
-| `to_model` | string | 否 | 同 name | 实际转发给后端的模型名 |
-| `protocol` | string | 是 | - | 协议类型：`openai` 或 `anthropic` |
-| `backend_url` | string | 是 | - | 后端 API 基础地址 |
-| `api_key` | string | 是 | - | 后端 API Key |
-| `description` | string | 否 | - | 模型能力描述，用于语义匹配 |
-| `default` | bool | 否 | `false` | 是否为默认模型（负载均衡兜底） |
-| `supports_files` | bool | 否 | `false` | 是否支持文件上传 |
-| `auxiliary_type` | []string | 否 | - | 辅助模型支持的文件类型（见下方枚举） |
-| `auxiliary_role` | string | 否 | - | 辅助模型角色（见下方枚举） |
+| `name` | string | Yes | - | External model name, used for X-Model matching |
+| `to_model` | string | No | same as `name` | Actual model name forwarded to the backend |
+| `protocol` | string | Yes | - | Protocol type: `openai` or `anthropic` |
+| `backend_url` | string | Yes | - | Backend API base URL |
+| `api_key` | string | Yes | - | Backend API key |
+| `description` | string | No | - | Model capability description, used for semantic matching |
+| `default` | bool | No | `false` | Whether this is the default model (load balancing fallback) |
+| `supports_files` | bool | No | `false` | Whether file uploads are supported |
+| `auxiliary_type` | []string | No | - | File types supported by the auxiliary model (see enumeration below) |
+| `auxiliary_role` | string | No | - | Auxiliary model role (see enumeration below) |
 
-#### auxiliary_type 文件类型枚举
+#### auxiliary_type file type enumeration
 
-| 值 | 说明 | 支持协议 | 示例模型 |
+| Value | Description | Supported protocols | Example models |
 |----|------|----------|----------|
-| `image` | 图片（PNG、JPG、WebP 等） | OpenAI、Anthropic | GPT-4o、Claude 3 |
-| `video` | 视频（MP4、WebM 等） | OpenAI | GPT-4o |
-| `audio` | 音频（MP3、WAV、OGG 等） | OpenAI | GPT-4o-audio |
-| `document` | 文档（PDF） | Anthropic | Claude 3 |
-| `file` | 通用文件 | OpenAI | GPT-4o |
+| `image` | Images (PNG, JPG, WebP, etc.) | OpenAI, Anthropic | GPT-4o, Claude 3 |
+| `video` | Videos (MP4, WebM, etc.) | OpenAI | GPT-4o |
+| `audio` | Audio (MP3, WAV, OGG, etc.) | OpenAI | GPT-4o-audio |
+| `document` | Documents (PDF) | Anthropic | Claude 3 |
+| `file` | Generic files | OpenAI | GPT-4o |
 
-**注意：**
-- Anthropic 官方 API 不支持 `audio` 和 `video`，只支持 `image` 和 `document`
-- OpenAI 支持所有类型
-- 可配置多个类型，如 `["image", "video"]`
+**Note:**
+- The Anthropic official API does not support `audio` and `video`, only `image` and `document`
+- OpenAI supports all types
+- Multiple types can be configured, e.g. `["image", "video"]`
 
-#### auxiliary_role 辅助模型角色枚举
+#### auxiliary_role auxiliary model role enumeration
 
-| 值 | 说明 | 触发关键词示例 | 适用场景 |
+| Value | Description | Example trigger keywords | Applicable scenarios |
 |----|------|----------------|----------|
-| `analysis` | 分析类任务 | "分析"、"描述"、"解释"、"识别"、"analyze"、"describe"、"explain" | 图片理解、文档解析、视频内容分析 |
-| `generation` | 生成类任务 | "生成"、"创建"、"制作"、"画"、"generate"、"create"、"make"、"draw" | 图片生成、视频生成、音频生成 |
+| `analysis` | Analysis tasks | "分析", "描述", "解释", "识别", "analyze", "describe", "explain" | Image understanding, document parsing, video content analysis |
+| `generation` | Generation tasks | "生成", "创建", "制作", "画", "generate", "create", "make", "draw" | Image generation, video generation, audio generation |
 
-**角色匹配逻辑：**
-- 系统会分析用户消息中的关键词
-- 包含生成类关键词 → 选择 `auxiliary_role: "generation"` 的模型
-- 其他情况 → 选择 `auxiliary_role: "analysis"` 的模型
-- 如果未配置角色，默认为 `analysis`
+**Role matching logic:**
+- The system analyzes keywords in the user message
+- Contains generation keywords → selects a model with `auxiliary_role: "generation"`
+- Otherwise → selects a model with `auxiliary_role: "analysis"`
+- If no role is configured, it defaults to `analysis`
 
-### LoadBalancer 配置
+### LoadBalancer configuration
 
-| 字段 | 类型 | 必填 | 默认值 | 说明 |
+| Field | Type | Required | Default | Description |
 |------|------|------|--------|------|
-| `model_name` | string | 否 | `ht-model` | 触发负载均衡的模型名 |
-| `model` | ModelConfig | 是 | - | 用于语义分词的 LLM 配置 |
-| `strategy` | string | 否 | `embedding` | 负载均衡策略 |
-| `top_k` | int | 否 | `3` | 返回 Top-K 个候选模型 |
-| `min_similarity` | float | 否 | `0.0` | 最小相似度阈值（0-1） |
-| `use_llm_parse` | bool | 否 | `false` | 是否启用 LLM 语义解析 |
+| `model_name` | string | No | `ht-model` | Model name that triggers load balancing |
+| `model` | ModelConfig | Yes | - | LLM configuration used for semantic tokenization |
+| `strategy` | string | No | `embedding` | Load balancing strategy |
+| `top_k` | int | No | `3` | Return Top-K candidate models |
+| `min_similarity` | float | No | `0.0` | Minimum similarity threshold (0-1) |
+| `use_llm_parse` | bool | No | `false` | Whether to enable LLM semantic parsing |
 
-#### 负载均衡策略
+#### Load balancing strategies
 
-**1. embedding（语义向量匹配）**
-- 使用 BGE-small-zh-v1.5 将用户问题和模型描述向量化
-- 计算余弦相似度，选择最匹配的模型
-- 适合：根据问题内容智能选择最合适的模型
+**1. embedding (semantic vector matching)**
+- Uses BGE-small-zh-v1.5 to vectorize user queries and model descriptions
+- Computes cosine similarity and selects the best-matching model
+- Suitable for: intelligently selecting the most appropriate model based on query content
 
-**2. round_robin（轮询）**
-- 按顺序轮流分配请求到各模型
-- 适合：模型能力相近，需要均匀分配负载
+**2. round_robin**
+- Distributes requests to each model in turn
+- Suitable for: models with similar capabilities where load needs to be spread evenly
 
-**3. least_conn（最少连接）**
-- 选择当前连接数最少的模型
-- 适合：请求处理时间差异大，需要动态平衡
+**3. least_conn (least connections)**
+- Selects the model with the fewest current connections
+- Suitable for: scenarios with large differences in request processing time where dynamic balancing is needed
 
-## API 接口
+## API Endpoints
 
-### OpenAI 协议
+### OpenAI protocol
 
 ```
 POST /openai/v1/chat/completions
@@ -483,7 +489,7 @@ POST /openai/v1/embeddings
 GET  /openai/v1/models
 ```
 
-### Anthropic 协议
+### Anthropic protocol
 
 ```
 POST /anthropic/v1/messages
@@ -491,141 +497,141 @@ POST /anthropic/v1/complete
 GET  /anthropic/v1/models
 ```
 
-### MCP 知识库
+### MCP knowledge base
 
 ```
-POST /mcp                      # MCP 协议入口（JSON-RPC）
+POST /mcp                      # MCP protocol entry point (JSON-RPC)
 ```
 
-**支持的工具：**
-- `search_models` - 搜索文档（支持关键词 + 向量混合搜索）
-- `get_document` - 获取文档详情
+**Supported tools:**
+- `search_models` - Search documents (keyword + vector hybrid search)
+- `get_document` - Get document details
 
-### 知识库管理 API
+### Knowledge base management API
 
 ```
-GET    /admin/mcp/documents              # 分页查询文档
-POST   /admin/mcp/documents              # 创建文档
-GET    /admin/mcp/documents/:id          # 获取单个文档
-PUT    /admin/mcp/documents/:id          # 更新文档
-DELETE /admin/mcp/documents/:id          # 删除文档
-POST   /admin/mcp/documents/batch-delete # 批量删除
-GET    /admin/mcp/documents/export       # 导出全部（CSV）
-POST   /admin/mcp/documents/export       # 按 ID 导出（CSV）
-POST   /admin/mcp/documents/import       # 导入文档（CSV）
+GET    /admin/mcp/documents              # Paginated document query
+POST   /admin/mcp/documents              # Create document
+GET    /admin/mcp/documents/:id          # Get single document
+PUT    /admin/mcp/documents/:id          # Update document
+DELETE /admin/mcp/documents/:id          # Delete document
+POST   /admin/mcp/documents/batch-delete # Batch delete
+GET    /admin/mcp/documents/export       # Export all (CSV)
+POST   /admin/mcp/documents/export       # Export by ID (CSV)
+POST   /admin/mcp/documents/import       # Import documents (CSV)
 ```
 
-**分页查询参数：**
-- `page` - 页码（默认 1）
-- `size` - 每页条数（默认 20）
-- `keywords` - 搜索关键词（逗号分隔）
+**Pagination query parameters:**
+- `page` - Page number (default 1)
+- `size` - Number of items per page (default 20)
+- `keywords` - Search keywords (comma-separated)
 
-示例：
+Example:
 ```bash
-# 查询第 2 页，每页 10 条，关键词包含 "deepseek"
+# Query page 2, 10 items per page, keywords containing "deepseek"
 curl "http://localhost:8080/admin/mcp/documents?page=2&size=10&keywords=deepseek" \
   -H "Authorization: Bearer your-api-key"
 ```
 
-### 健康检查
+### Health check
 
 ```
 GET /health
 ```
 
-## 架构说明
+## Architecture
 
-### 目录结构
+### Directory structure
 
 ```
 HeZhiShenAIGateway/
-├── cmd/main.go                 # 程序入口
+├── cmd/main.go                 # Program entry point
 ├── config/
-│   ├── config.go              # 配置加载和校验
-│   └── path.go                # 路径解析
+│   ├── config.go              # Configuration loading and validation
+│   └── path.go                # Path resolution
 ├── middleware/
-│   └── auth.go                # 鉴权中间件
+│   └── auth.go                # Authentication middleware
 ├── route/
-│   ├── openai/v1/             # OpenAI 协议处理
-│   ├── anthropic/v1/          # Anthropic 协议处理
-│   ├── common/                # 公共工具（文件检测等）
-│   └── loadbalancer/          # 负载均衡器
-├── translator/                # 协议转换器
-├── mcp/                       # MCP 协议实现
-│   ├── handler.go             # MCP 请求处理
-│   ├── schema.go              # MCP 数据结构
-│   ├── admin.go               # 知识库管理 API
-│   └── dao/                   # 数据访问层
-│       ├── schema.go          # 数据库表结构
-│       ├── document.go        # 文档 CRUD
-│       └── vector.go          # 向量编解码
-├── emmodel/                   # 嵌入模型文件
-├── data/                      # SQLite 数据库
-└── web/                       # 前端静态资源
+│   ├── openai/v1/             # OpenAI protocol handling
+│   ├── anthropic/v1/          # Anthropic protocol handling
+│   ├── common/                # Common utilities (file detection, etc.)
+│   └── loadbalancer/          # Load balancer
+├── translator/                # Protocol translators
+├── mcp/                       # MCP protocol implementation
+│   ├── handler.go             # MCP request handling
+│   ├── schema.go              # MCP data structures
+│   ├── admin.go               # Knowledge base management API
+│   └── dao/                   # Data access layer
+│       ├── schema.go          # Database table schemas
+│       ├── document.go        # Document CRUD
+│       └── vector.go          # Vector encoding/decoding
+├── emmodel/                   # Embedding model files
+├── data/                      # SQLite database
+└── web/                       # Frontend static assets
 ```
 
-### 请求流程
+### Request flow
 
 ```
-客户端请求
+Client request
     ↓
-鉴权中间件（验证 API Key）
+Authentication middleware (verify API key)
     ↓
-负载均衡路由（如果 X-Model = ht-model）
+Load balancing routing (if X-Model = ht-model)
     ↓
-文件感知路由（检测文件类型，切换辅助模型）
+File-aware routing (detect file type, switch auxiliary model)
     ↓
-协议转换（如果需要跨协议）
+Protocol translation (if cross-protocol is needed)
     ↓
-转发到后端模型
+Forward to backend model
     ↓
-返回响应
+Return response
 ```
 
-### 文件感知路由流程
+### File-aware routing flow
 
 ```
-1. 检测请求体中的文件类型（image/video/audio/document）
-2. 分析用户消息判断任务类型（analysis/generation）
-3. 查找匹配的辅助模型：
-   - 支持请求中的文件类型
-   - 角色匹配任务类型
-   - 优先同协议，其次跨协议
-4. 切换到辅助模型处理请求
+1. Detect the file type in the request body (image/video/audio/document)
+2. Analyze the user message to determine the task type (analysis/generation)
+3. Find a matching auxiliary model:
+   - Supports the file type in the request
+   - Role matches the task type
+   - Prefers the same protocol, then cross-protocol
+4. Switch to the auxiliary model to handle the request
 ```
 
-## 环境变量
+## Environment Variables
 
-| 变量名 | 默认值 | 说明 |
+| Variable | Default | Description |
 |--------|--------|------|
-| `CONFIG_PATH` | `./config.yaml` | 配置文件路径 |
-| `EMBEDDING_MODEL_PATH` | `./emmodel/bge-small-zh-v1.5/bge-small-zh-v1.5` | 嵌入模型路径 |
-| `MCP_DB_PATH` | `./data/mcp.db` | MCP 数据库路径 |
+| `CONFIG_PATH` | `./config.yaml` | Configuration file path |
+| `EMBEDDING_MODEL_PATH` | `./emmodel/bge-small-zh-v1.5/bge-small-zh-v1.5` | Embedding model path |
+| `MCP_DB_PATH` | `./data/mcp.db` | MCP database path |
 
-## 部署建议
+## Deployment
 
-### 开发环境
+### Development
 
 ```bash
-# 直接运行
+# Run directly
 go run cmd/main.go
 
-# 或使用 air 热重载
+# Or use air for hot reload
 air
 ```
 
-### 生产环境
+### Production
 
 ```bash
-# 编译
+# Build
 go build -o hezhishen cmd/main.go
 
-# 使用 systemd 管理
+# Manage with systemd
 sudo systemctl start hezhishen
 sudo systemctl enable hezhishen
 ```
 
-### Docker 部署
+### Docker deployment
 
 ```dockerfile
 FROM golang:1.25-alpine AS builder
@@ -642,52 +648,52 @@ EXPOSE 8080
 CMD ["./hezhishen"]
 ```
 
-## 常见问题
+## FAQ
 
-### Q: 为什么负载均衡不生效？
+### Q: Why is load balancing not working?
 
-A: 确保：
-1. `loadbalancer` 配置已启用
-2. 请求的 `X-Model` 头等于 `loadbalancer.model_name`（默认 `ht-model`）
-3. 嵌入模型已正确加载（查看启动日志）
+A: Make sure:
+1. The `loadbalancer` configuration is enabled
+2. The request's `X-Model` header equals `loadbalancer.model_name` (default `ht-model`)
+3. The embedding model is loaded correctly (check the startup logs)
 
-### Q: 文件感知路由没有触发？
+### Q: File-aware routing is not triggering?
 
-A: 检查：
-1. 当前模型 `supports_files: false`
-2. 配置了至少一个辅助模型（`auxiliary_type` 非空）
-3. 请求体中包含正确的多模态格式
+A: Check:
+1. The current model has `supports_files: false`
+2. At least one auxiliary model is configured (`auxiliary_type` is non-empty)
+3. The request body contains the correct multimodal format
 
-### Q: 跨协议翻译失败？
+### Q: Cross-protocol translation fails?
 
-A: 目前只支持 `/chat/completions` 和 `/messages` 的互相转换，其他接口需要相同协议。
+A: Currently only `/chat/completions` and `/messages` can be converted bidirectionally; other endpoints require the same protocol.
 
-## 性能优化
+## Performance Optimization
 
-### 向量搜索优化
+### Vector search optimization
 
-- 使用 `LIMIT 100` 限制 LIKE 搜索结果
-- 向量搜索使用 KNN 算法，时间复杂度 O(n)
-- 建议文档数量不超过 10 万条
+- Uses `LIMIT 100` to limit LIKE search results
+- Vector search uses the KNN algorithm with O(n) time complexity
+- Recommended document count does not exceed 100,000
 
-### 连接池
+### Connection pool
 
-- SQLite 使用单连接模式（`SetMaxOpenConns(1)`）
-- HTTP 客户端使用默认连接池
+- SQLite uses single-connection mode (`SetMaxOpenConns(1)`)
+- HTTP client uses the default connection pool
 
-### 缓存
+### Caching
 
-- 嵌入模型启动时加载，常驻内存
-- 模型描述向量启动时预计算
+- The embedding model is loaded at startup and stays resident in memory
+- Model description vectors are precomputed at startup
 
-## 许可证
+## License
 
 [Apache License 2.0](LICENSE)
 
-## 贡献
+## Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome!
 
-## 联系方式
+## Contact
 
-如有问题，请提交 Issue 或联系维护者。
+If you have any questions, please submit an Issue or contact the maintainer.
